@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player</title>
+    <link rel="stylesheet" href="index.css">
+    <script src="https://kit.fontawesome.com/7d6c1aed4e.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- <div class="modal-content red" style="">
+        <div>
+                <h1>Big 7</h1>
+                <p>Burna Boy</p>  
+        </div>
+        <div>
+                <h1>Big 7</h1>
+                <p>Burna Boy</p>  
+        </div>
+        <div>
+                <h1>Big 7</h1>
+                <p>Burna Boy</p>  
+        </div>
+        <div>
+                <h1>Big 7</h1>
+                <p>Burna Boy</p>  
+        </div>
+    </div> -->
+    <div class="background">
+        <video autoplay muted loop id="background-video">
+            <source src="background.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    <div class="player-container">
+        <div class="song-info">
+            <img src="" alt="Song Thumbnail" class="song-thumbnail" id="song-thumbnail">
+            <h1 id="song-title"></h1>
+            <p id="song-artist"></p>
+        </div>
+        
+        <audio id="song">
+            <source type="audio/mpeg" id="song-source" src="/Burna_Boyy_-_Big_7.mp3">
+        </audio>
+
+        <input type="range" value="0" id="progress" class="progress-bar">
+
+        <div class="controls">
+            <div class="control-btn" onclick="prevSong()"><i class="fa-solid fa-backward"></i></div>
+            <div class="control-btn" onclick="playPause()"><i class="fa-solid fa-play" id="ctrlIcon"></i></div>
+            <div class="control-btn" onclick="nextSong()"><i class="fa-solid fa-forward"></i></div>
+            <div class="control-btn" onclick="shuffleSong()"><i class="fa-solid fa-random"></i></div>
+        </div>
+
+        <div class="social-interactions">
+            <div class="control-btn" onclick="likeSong()"><i class="fa-solid fa-thumbs-up" id="likeIcon"></i></div>
+            <div class="control-btn" onclick="shareSong()"><i class="fa-solid fa-share"></i></div>
+            <div class="control-btn"><a id="downloadLink" download><i class="fa-solid fa-download"></i></a></div>
+        </div>
+
+        <div class="comment-section">
+            <input type="text" id="commentInput" placeholder="Add a comment...">
+            <button onclick="addComment()">Comment</button>
+            <ul id="commentList"></ul>
+        </div>
+        
+        
+        <!-- Modal for viewing all songs -->
+    
+          
+    </div>
+    <p  onclick="view()" id="view">View Songs</p>
+
+
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+
+    <script>
+      
+        let allMusic = [
+            {
+                name: "Big 7",
+                artist: "Burna Boy",
+                img: "./Burna-Boy-scaled-1.jpg",
+                src: "Burna_Boyy_-_Big_7.mp3"
+            },
+            {
+                name: "Ogechi Remix",
+                artist: "Davido",
+                img: "Davido.jpeg",
+                src: "Burna_Boyy_-_Big_7.mp3"
+            },
+            {
+                name: "Bahamas",
+                artist: "Young John",
+                img: "./young john.jpg",
+                src: "Young_Jonn_-_Bahamas.mp3"
+            },
+            {
+                name: "Mockingbird",
+                artist: "Eminem",
+                img: "Davido.jpeg",
+                src: "./Eminem_-_Mockingbird_(Jesusful.com).mp3"
+            },
+            {
+                name: "Fast",
+                artist: "Juice Wrld",
+                img: "./Burna-Boy-scaled-1.jpg",
+                src: "./Juice_WRLD_-_Fast-(Netxclusive.com) (1).mp3"
+            },
+            {
+                name: "100",
+                artist: "Shallipopi",
+                img: "./Burna-Boy-scaled-1.jpg",
+                src: "Shallipopi_-_100.mp3"
+            },
+            {
+                name: "Small Money",
+                artist: "Young John",
+                img: "./468-thumbnail",
+                src: "Nasboi_-_Small_Money.mp3"
+            },
+        ]
+
+        let currentSongIndex = 0;
+        let progress = document.getElementById('progress');
+        let song = document.getElementById('song');
+        let songSource = document.getElementById('song-source');
+        let ctrlIcon = document.getElementById('ctrlIcon');
+        let likeIcon = document.getElementById('likeIcon');
+        let commentInput = document.getElementById('commentInput');
+        let commentList = document.getElementById('commentList');
+        let songThumbnail = document.getElementById('song-thumbnail');
+        let songTitle = document.getElementById('song-title');
+        let songArtist = document.getElementById('song-artist');
+        let downloadLink = document.getElementById('downloadLink');
+        let modal = document.getElementById('modal');
+        let allSongsList = document.getElementById('allSongsList');
+        // Update the progress bar and start the song 
+        song.onloadeddata = () => {
+            progress.max = song.duration;
+            progress.value = song.currentTime;
+        }
+
+        if (song.play()) {
+            setInterval(() => {
+                progress.value = song.currentTime;
+            }, 500);
+        }
+
+        // Toggle between the pause and play icon
+        const playPause = () => {
+            if (ctrlIcon.classList.contains('fa-play')) {
+                song.play();
+                ctrlIcon.classList.replace('fa-play', 'fa-pause');
+            } else {
+                song.pause();
+                ctrlIcon.classList.replace('fa-pause', 'fa-play');
+            }
+        }
+
+    // const view = () => {
+    //     let red = document.querySelector('.red')
+    //     red.classList.toggle('active')
+    //     let body = document.querySelector('body')
+    //     body.classList.add("blur")
+    // }
+        
+        // Change the progress bar 
+        progress.onchange = function() {
+            song.play();
+            song.currentTime = progress.value;
+            ctrlIcon.classList.replace('fa-pause', 'fa-play');
+        }
+
+        // Load the content of the page from the allMusic array
+        const loadSong = (index) => {
+            songTitle.textContent = allMusic[index].name;
+            songArtist.textContent = allMusic[index].artist;
+            songThumbnail.src = allMusic[index].img;
+            songSource.src = allMusic[index].src;
+            song.load();
+            downloadLink.href = allMusic[index].src;
+            downloadLink.setAttribute('download', allMusic[index].name);
+            //  currentSongIndex = (currentSongIndex + 1) % allMusic.length;
+            // loadSong(currentSongIndex);
+        }
+
+        // Function to move to the next song 
+        const nextSong = () => {
+            currentSongIndex = (currentSongIndex + 1) % allMusic.length;
+            loadSong(currentSongIndex);
+            playPause();
+        }
+
+        // Function to move to the previous song 
+        const prevSong = () => {
+            currentSongIndex = (currentSongIndex - 1 + allMusic.length) % allMusic.length;
+            loadSong(currentSongIndex);
+            playPause();
+        }
+
+        // Function to shuffle songs 
+        const shuffleSong = () => {
+            currentSongIndex = Math.floor(Math.random() * allMusic.length);
+            loadSong(currentSongIndex);
+            playPause();
+        }
+
+        // Function to like song 
+        const likeSong = () => {
+            if (likeIcon.classList.contains('fa-thumbs-up')) {
+               const liked =  likeIcon.style.color = 'blue'
+                localStorage.setItem('color', liked)
+            } else {
+                const liked =  likeIcon.style.color = 'red'
+                localStorage.setItem('color', liked)
+            }
+        }
+
+
+        //  share song code 
+        const shareSong = () => {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Music Player',
+                    text: `Listening to ${allMusic[currentSongIndex].name} by ${allMusic[currentSongIndex].artist}`,
+                    url: window.location.href
+                }).then(() => {
+                    console.log('Thanks for sharing!');
+                }).catch(console.error);
+            } else {
+                alert('Your browser does not support the Web Share API.');
+            }
+        }
+
+        // Add comment 
+        const addComment = () => {
+            if (commentInput.value.trim() !== "") {
+                let li = document.createElement('li');
+                li.textContent = commentInput.value;
+                commentList.appendChild(li);
+                commentInput.value = "";
+            }
+        }
+
+        // Load the first song initially
+        loadSong(currentSongIndex);
+
+        // Close the modal when clicking outside of it
+        window.onclick = (event) => {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
