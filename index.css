@@ -162,6 +162,7 @@ p {
 
 .comment-section button:hover {
     background-color: #1aa34a;
+    font-size: 10px;
 }
 
 .comment-section ul {
@@ -172,9 +173,16 @@ p {
     overflow-y: auto;
 }
 
+::placeholder{
+     font-size: 12px;
+}
+
 .comment-section ul li {
     background: rgba(255, 255, 255, 0.1);
-    padding: 5px;
+    padding: 7px;
     margin: 5px 0;
     border-radius: 5px;
+    /* width: 20%; */
+    text-align: center;
+    font-size: 13px;
 }

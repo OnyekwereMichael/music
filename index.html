@@ -8,24 +8,6 @@
     <script src="https://kit.fontawesome.com/7d6c1aed4e.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <!-- <div class="modal-content red" style="">
-        <div>
-                <h1>Big 7</h1>
-                <p>Burna Boy</p>  
-        </div>
-        <div>
-                <h1>Big 7</h1>
-                <p>Burna Boy</p>  
-        </div>
-        <div>
-                <h1>Big 7</h1>
-                <p>Burna Boy</p>  
-        </div>
-        <div>
-                <h1>Big 7</h1>
-                <p>Burna Boy</p>  
-        </div>
-    </div> -->
     <div class="background">
         <video autoplay muted loop id="background-video">
             <source src="background.mp4" type="video/mp4">
@@ -63,14 +45,15 @@
             <button onclick="addComment()">Comment</button>
             <ul id="commentList"></ul>
         </div>
-        
-        
-        <!-- Modal for viewing all songs -->
-    
-          
     </div>
-    <p  onclick="view()" id="view">View Songs</p>
 
+    <!-- Modal for viewing all songs -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <ul id="allSongsList"></ul>
+        </div>
+    </div>
 
     <style>
         .modal {
@@ -109,7 +92,6 @@
     </style>
 
     <script>
-      
         let allMusic = [
             {
                 name: "Big 7",
@@ -121,7 +103,7 @@
                 name: "Ogechi Remix",
                 artist: "Davido",
                 img: "Davido.jpeg",
-                src: "Burna_Boyy_-_Big_7.mp3"
+                src: "Brown-Joel-Ft-BoyPee-and-Hyce-Davido-Ogechi-Remix-New-Song-(TrendyBeatz.com).mp3"
             },
             {
                 name: "Bahamas",
@@ -132,7 +114,7 @@
             {
                 name: "Mockingbird",
                 artist: "Eminem",
-                img: "Davido.jpeg",
+                img: "eminem.jpg",
                 src: "./Eminem_-_Mockingbird_(Jesusful.com).mp3"
             },
             {
@@ -144,16 +126,16 @@
             {
                 name: "100",
                 artist: "Shallipopi",
-                img: "./Burna-Boy-scaled-1.jpg",
+                img: "./Shallipopi.jpg",
                 src: "Shallipopi_-_100.mp3"
             },
             {
                 name: "Small Money",
-                artist: "Young John",
-                img: "./468-thumbnail",
+                artist: "Nasboi",
+                img: "./Nasboi.png",
                 src: "Nasboi_-_Small_Money.mp3"
             },
-        ]
+        ];
 
         let currentSongIndex = 0;
         let progress = document.getElementById('progress');
@@ -169,11 +151,12 @@
         let downloadLink = document.getElementById('downloadLink');
         let modal = document.getElementById('modal');
         let allSongsList = document.getElementById('allSongsList');
-        // Update the progress bar and start the song 
+
+        // Update the progress bar and start the song
         song.onloadeddata = () => {
             progress.max = song.duration;
             progress.value = song.currentTime;
-        }
+        };
 
         if (song.play()) {
             setInterval(() => {
@@ -181,78 +164,74 @@
             }, 500);
         }
 
+       
+
         // Toggle between the pause and play icon
         const playPause = () => {
             if (ctrlIcon.classList.contains('fa-play')) {
-                song.play();
                 ctrlIcon.classList.replace('fa-play', 'fa-pause');
+                song.play();
             } else {
-                song.pause();
                 ctrlIcon.classList.replace('fa-pause', 'fa-play');
+                song.pause();
             }
-        }
+        };
 
-    // const view = () => {
-    //     let red = document.querySelector('.red')
-    //     red.classList.toggle('active')
-    //     let body = document.querySelector('body')
-    //     body.classList.add("blur")
-    // }
-        
-        // Change the progress bar 
+        // Change the progress bar
         progress.onchange = function() {
             song.play();
             song.currentTime = progress.value;
             ctrlIcon.classList.replace('fa-pause', 'fa-play');
-        }
+        };
 
         // Load the content of the page from the allMusic array
         const loadSong = (index) => {
             songTitle.textContent = allMusic[index].name;
             songArtist.textContent = allMusic[index].artist;
             songThumbnail.src = allMusic[index].img;
-            songSource.src = allMusic[index].src;
+            songSource.src = allMusic[index].src; 
             song.load();
             downloadLink.href = allMusic[index].src;
             downloadLink.setAttribute('download', allMusic[index].name);
-            //  currentSongIndex = (currentSongIndex + 1) % allMusic.length;
-            // loadSong(currentSongIndex);
-        }
+        };
 
-        // Function to move to the next song 
+        // Function to move to the next song
         const nextSong = () => {
             currentSongIndex = (currentSongIndex + 1) % allMusic.length;
             loadSong(currentSongIndex);
             playPause();
-        }
+        };
 
-        // Function to move to the previous song 
+          // Play next song when current song ends
+        song.onended = nextSong;
+
+
+        // Function to move to the previous song
         const prevSong = () => {
             currentSongIndex = (currentSongIndex - 1 + allMusic.length) % allMusic.length;
             loadSong(currentSongIndex);
             playPause();
-        }
+        };
 
-        // Function to shuffle songs 
+        // Function to shuffle songs
         const shuffleSong = () => {
             currentSongIndex = Math.floor(Math.random() * allMusic.length);
             loadSong(currentSongIndex);
             playPause();
-        }
+        };
 
-        // Function to like song 
+        // Function to like song
         const likeSong = () => {
             if (likeIcon.classList.contains('fa-thumbs-up')) {
-               const liked =  likeIcon.style.color = 'blue'
-                localStorage.setItem('color', liked)
+                likeIcon.style.color = 'blue';
+                // likeIcon.classList.replace('fa-thumbs-up', 'fa-thumbs-down');
             } else {
-                const liked =  likeIcon.style.color = 'red'
-                localStorage.setItem('color', liked)
+                likeIcon.style.color = 'red';
+                likeIcon.classList.replace('fa-thumbs-down', 'fa-thumbs-up');
             }
-        }
+        };
 
-
-        //  share song code 
+        // Share song
         const shareSong = () => {
             if (navigator.share) {
                 navigator.share({
@@ -265,9 +244,9 @@
             } else {
                 alert('Your browser does not support the Web Share API.');
             }
-        }
+        };
 
-        // Add comment 
+        // Add comment
         const addComment = () => {
             if (commentInput.value.trim() !== "") {
                 let li = document.createElement('li');
@@ -275,17 +254,38 @@
                 commentList.appendChild(li);
                 commentInput.value = "";
             }
-        }
+        };
 
         // Load the first song initially
         loadSong(currentSongIndex);
+
+        // View all songs
+        const viewSongs = () => {
+            allSongsList.innerHTML = '';
+            allMusic.forEach((song, index) => {
+                let li = document.createElement('li');
+                li.textContent = `${song.name} - ${song.artist}`;
+                li.onclick = () => {
+                    loadSong(index);
+                    playPause();
+                    closeModal();
+                };
+                allSongsList.appendChild(li);
+            });
+            modal.style.display = "block";
+        };
+
+        // Close the modal
+        const closeModal = () => {
+            modal.style.display = "none";
+        };
 
         // Close the modal when clicking outside of it
         window.onclick = (event) => {
             if (event.target == modal) {
                 closeModal();
             }
-        }
+        };
     </script>
 </body>
 </html>
